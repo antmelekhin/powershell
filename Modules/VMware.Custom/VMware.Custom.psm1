@@ -4,7 +4,7 @@
     Функция подключения к серверу vCenter.
 
     .DESCRIPTION
-    Используется в других финкциях данного модуля для подключения к vCenter, если администратор не сделал этого заранее.
+    Используется в других функциях данного модуля для подключения к vCenter, если администратор не сделал этого заранее.
     #>
     $ReadHost = Read-Host -Prompt 'Хотите подключиться? (y/n)'
     switch ($ReadHost) {
@@ -29,7 +29,6 @@ function Get-HostedVM {
     #>
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false)]
         [String[]]$Name
     )
 
@@ -74,7 +73,7 @@ function Get-HostedVM {
 function Get-EsxiHost {
     <#
     .SYNOPSIS
-    Функция сбора информации об одном или нескольких Esxi-хостах VMWare.
+    Функция сбора информации об одном или нескольких хостах Esxi.
 
     .EXAMPLE
     Get-EsxiHost -Name MyHost
@@ -86,7 +85,6 @@ function Get-EsxiHost {
     #>
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false)]
         [String[]]$Name
     )
 
@@ -102,18 +100,19 @@ function Get-EsxiHost {
         # Создаём массив для наполнения его всеми объектами для дальнейшего вывода на экран.
         [System.Collections.ArrayList]$EsxiResults = @()
 
-        # Перебираем указанные Esxi-хосты, создаём и наполняем объект свойствами.
+        # Перебираем указанные хосты Esxi, создаём и наполняем объект свойствами.
         foreach ($Esxi in (Get-VMHost @PSBoundParameters)) {
             $EsxiObject = [PSCustomObject]@{
-                'Name'       = $Esxi.Name
-                'Hypervisor' = $Esxi.ExtensionData.Config.Product.FullName
-                'Model'      = ($Esxi.Manufacturer + ' ' + $Esxi.Model)
-                'Processor'  = $Esxi.ProcessorType
-                'CPUNum'     = $Esxi.ExtensionData.Hardware.CpuInfo.NumCpuThreads
-                'NicNum'     = $Esxi.NetworkInfo.PhysicalNic.Count
-                'VMNum'      = $Esxi.ExtensionData.Vm.Count
-                'State'      = $Esxi.ConnectionState
-                'Cluster'    = $Esxi.Parent
+                'Name'          = $Esxi.Name
+                'State'         = $Esxi.ConnectionState
+                'Hypervisor'    = $Esxi.ExtensionData.Config.Product.FullName
+                'Model'         = ($Esxi.Manufacturer + ' ' + $Esxi.Model)
+                'Processor'     = $Esxi.ProcessorType
+                'CPUNum'        = $Esxi.ExtensionData.Hardware.CpuInfo.NumCpuThreads
+                'MemoryTotalGB' = [System.Math]::Round($Esxi.MemoryTotalGB)
+                'NicNum'        = $Esxi.NetworkInfo.PhysicalNic.Count
+                'VMNum'         = $Esxi.ExtensionData.Vm.Count
+                'Cluster'       = $Esxi.Parent
             }
 
             # Сохраняем все объекты в массив для вывода на экран.
