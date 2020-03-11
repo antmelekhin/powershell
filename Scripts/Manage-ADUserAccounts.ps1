@@ -39,7 +39,7 @@ if (Test-Path -Path $JsonPath) {
     Get-LyncCmdlets -ServerName 'lynk.domain.local' -LyncCmdlets Enable-CsUser
 
     foreach ($JsonFile in (Get-ChildItem -Path $JsonPath).FullName) {
-        # Конвертируем json-файл в PSObject.
+        # Конвертируем json файл в PSObject.
         $UserObject = Get-Content -Path $JsonFile | ConvertFrom-Json
 
         # Назначаем начальные переменнные.
@@ -56,7 +56,7 @@ if (Test-Path -Path $JsonPath) {
             $AttrInHash = @{ }
             $UserObject.OtherAttributes.PSObject.Properties | ForEach-Object { $AttrInHash.Add($_.Name, $_.Value) }
 
-            # Из json-файла должны передаваться значения в формате атрибутов Active Directory.
+            # Из json файла должны передаваться значения в формате атрибутов Active Directory.
             # Например: из программы кадрового учёта значение поля "Руководитель" передаётся в формате "ФИО", а значение
             # атрибута Active Directory, в который мы его записываем, должно быть в формате различающегося имени.
             if ($AttrInHash.Manager) {
@@ -171,5 +171,8 @@ if (Test-Path -Path $JsonPath) {
                 Set-ADAccountExpiration -Identity $ADUser.SamAccountName -TimeSpan $TimeSpan
             }
         }
+
+        # Удаляем прочитанный json файл.
+        Remove-Item -Path $JsonFile
     }
 }
